@@ -1,4 +1,5 @@
 import * as request from 'supertest';
+import { getConnection } from 'typeorm';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -16,6 +17,11 @@ describe('UserModule (e2e)', () => {
 
     app = module.createNestApplication();
     await app.init();
+  });
+
+  afterAll(async () => {
+    await getConnection().dropDatabase();
+    await app.close();
   });
 
   it('HealthCheck', () => {

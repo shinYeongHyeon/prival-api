@@ -5,13 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 
 import { UserModule } from './user/user.module';
-import { HealthModule } from './health/HealthModule';
+import { HealthModule } from './health/Health.module';
+import { UserEntity } from './user/entity/User.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_EV === 'dev' ? '.env.dev' : '.env.test',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('prod', 'dev', 'test'),
@@ -31,7 +32,7 @@ import { HealthModule } from './health/HealthModule';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV === 'dev',
-      entities: [],
+      entities: [UserEntity],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
