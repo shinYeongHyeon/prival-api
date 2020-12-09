@@ -1,12 +1,8 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import { IsString, MinLength } from 'class-validator';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 
+@InputType({ isAbstract: true })
 @ObjectType()
 @Entity({ name: 'user' })
 export class UserEntity {
@@ -15,14 +11,12 @@ export class UserEntity {
   id: string;
 
   @Field(() => String)
+  @IsString()
+  @MinLength(1)
   @Column()
   name: string;
 
   @Field(() => Date)
   @CreateDateColumn()
   createdAt: Date;
-
-  @Field(() => Date)
-  @UpdateDateColumn()
-  updateAt: Date;
 }
