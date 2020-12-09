@@ -8,7 +8,7 @@ interface UserProps {
   createdAt: Date;
 }
 
-interface UserNewProps {
+export interface UserNewProps {
   userName: UserName;
 }
 
@@ -27,5 +27,9 @@ export class User extends AggregateRoot<UserProps> {
 
   get name(): UserName {
     return this.props.userName;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
   }
 }
