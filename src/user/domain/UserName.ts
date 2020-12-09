@@ -19,4 +19,8 @@ export class UserName extends ValueObject<UserNameProps> {
   private constructor(props: UserNameProps) {
     super(props);
   }
+
+  get value(): string {
+    return this.props.value;
+  }
 }

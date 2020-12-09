@@ -12,9 +12,9 @@ export class UserResolver {
   constructor(private readonly createUserUseCase: CreateUserUseCase) {}
 
   @Mutation(() => CreateUserResponse)
-  createUser(
+  async createUser(
     @Args('input') createUserRequest: CreateUserRequest,
-  ): CreateUserResponse {
-    return this.createUserUseCase.execute(createUserRequest);
+  ): Promise<CreateUserResponse> {
+    return await this.createUserUseCase.execute(createUserRequest);
   }
 }
