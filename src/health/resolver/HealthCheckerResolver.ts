@@ -1,7 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
 
 @Resolver(() => Boolean)
-export class UserResolver {
+export class HealthCheckerResolver {
   @Query(() => Boolean)
   healthCheck(): boolean {
     return true;
