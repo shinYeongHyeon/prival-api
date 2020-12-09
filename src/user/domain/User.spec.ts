@@ -21,6 +21,6 @@ describe('User', () => {
 
   it('getter 들이 정상작동하는지', () => {
     expect(userOrError.value.name).toEqual(userName);
-    expect(userOrError.value.name.props.value).toEqual(USER_NAME);
+    expect(userOrError.value.name.value).toEqual(USER_NAME);
   });
 });
