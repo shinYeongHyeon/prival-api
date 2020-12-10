@@ -1,14 +1,24 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { IsString, MinLength } from 'class-validator';
+import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { IsEmail, IsString, MinLength } from 'class-validator';
+import * as bcrypt from 'bcrypt';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
+
+import { CoreEntity } from '../../shared/enitity/Core.entity';
 
 @InputType({ isAbstract: true })
 @ObjectType()
 @Entity({ name: 'user' })
-export class UserEntity {
+export class UserEntity extends CoreEntity {
   @Field(() => String)
-  @PrimaryColumn()
-  id: string;
+  @Column()
+  @IsEmail()
+  email: string;
+
+  @Field(() => String)
+  @MinLength(6)
+  @Column({ select: false })
+  password: string;
 
   @Field(() => String)
   @IsString()
@@ -16,7 +26,23 @@ export class UserEntity {
   @Column()
   name: string;
 
-  @Field(() => Date)
-  @CreateDateColumn()
-  createdAt: Date;
+  @BeforeInsert()
+  @BeforeUpdate()
+  private async hashPassword(): Promise<void> {
+    if (this.password) {
+      try {
+        this.password = await bcrypt.hash(this.password, 10);
+      } catch (e) {
+        throw new InternalServerErrorException();
+      }
+    }
+  }
+
+  private async checkPassword(toCheckPassword: string): Promise<boolean> {
+    try {
+      return await bcrypt.compare(toCheckPassword, this.password);
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
+  }
 }

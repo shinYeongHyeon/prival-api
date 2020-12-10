@@ -5,6 +5,8 @@ import { IUserRepository } from '../../infra/interface/IUserRepository';
 
 describe('CreateUserUseCase', () => {
   const USER_NAME = '신영현';
+  const USER_EMAIL = 'den.shin.dev@gmail.com';
+  const USER_PASSWORD = '123456';
 
   let uut: CreateUserUseCase;
   let userRepository: MockProxy<IUserRepository>;
@@ -20,7 +22,9 @@ describe('CreateUserUseCase', () => {
 
   it('유저 Create', async () => {
     const createUserResponse = await uut.execute({
+      email: USER_EMAIL,
       name: USER_NAME,
+      password: USER_PASSWORD,
     });
 
     expect(createUserResponse).toBeDefined();

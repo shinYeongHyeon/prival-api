@@ -5,6 +5,7 @@ import { UserName } from '../../domain/UserName';
 import { User } from '../../domain/User';
 import { IUserRepository } from '../../infra/interface/IUserRepository';
 import { CreateUserRequest, CreateUserResponse } from './dto/CreateUser.dto';
+import { UserEmail } from '../../domain/UserEmail';
 
 export class CreateUserUseCase
   implements IUseCase<CreateUserRequest, CreateUserResponse> {
@@ -15,18 +16,21 @@ export class CreateUserUseCase
 
   async execute(request: CreateUserRequest): Promise<CreateUserResponse> {
     const userNameOrError = UserName.create(request.name);
+    const userEmailOrError = UserEmail.create(request.email);
+
     const user = User.createNew({
       userName: userNameOrError.value,
+      userEmail: userEmailOrError.value,
     }).value;
 
-    await this.userRepository.save(user);
+    await this.userRepository.save(user, request.password);
 
     return {
       ok: true,
       user: {
         id: user.id.toValue().toString(),
-        name: user.name.props.value,
-        createdAt: user.createdAt,
+        email: user.email.value,
+        name: user.name.value,
       },
     };
   }

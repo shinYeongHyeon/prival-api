@@ -9,6 +9,8 @@ const GRAPHQL_ENDPOINT = '/graphql';
 
 describe('UserModule (e2e)', () => {
   const USER_NAME = '신영현_테스트';
+  const USER_EMAIL = 'den.shin.dev@gmail.com';
+  const USER_PASSWORD = '123456789';
 
   let app: INestApplication;
 
@@ -31,17 +33,19 @@ describe('UserModule (e2e)', () => {
       .post(GRAPHQL_ENDPOINT)
       .send({
         query: `mutation {
-        createUser(input: {
-          name: "${USER_NAME}"
-        }) {
-          ok
-          user {
-            id
-            name
-            createdAt
+          createUser(input: {
+            name: "${USER_NAME}",
+            email: "${USER_EMAIL}",
+            password: "${USER_PASSWORD}"
+          }) {
+            ok
+            user {
+              id
+              email
+              name
+            }
           }
-        }
-      }`,
+        }`,
       })
       .expect(200)
       .expect((response) => {
@@ -52,6 +56,7 @@ describe('UserModule (e2e)', () => {
         } = response;
         expect(createUser.ok).toBe(true);
         expect(createUser.user.name).toEqual(USER_NAME);
+        expect(createUser.user.email).toEqual(USER_EMAIL);
       });
   });
 });
