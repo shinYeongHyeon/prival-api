@@ -1,5 +1,7 @@
 import { User } from '../../domain/User';
 
 export interface IUserRepository {
-  save(user: User, password: string): Promise<User>;
+  save(user: User): Promise<User>;
+
+  findByEmail(email: string): Promise<User> | undefined;
 }

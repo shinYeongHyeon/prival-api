@@ -1,4 +1,4 @@
-import { cloneDeep, findIndex } from 'lodash';
+import { cloneDeep, find, findIndex } from 'lodash';
 
 import { IUserRepository } from './interface/IUserRepository';
 import { User } from '../domain/User';
@@ -13,5 +13,9 @@ export class InMemoryUserRepository implements IUserRepository {
     this.items.push(clonedUser);
 
     return clonedUser;
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return find(this.items, (item) => item.email.value === email);
   }
 }

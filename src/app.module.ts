@@ -7,6 +7,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { UserModule } from './user/user.module';
 import { HealthModule } from './health/Health.module';
 import { UserEntity } from './user/entity/User.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -36,9 +37,11 @@ import { UserEntity } from './user/entity/User.entity';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context: ({ req }) => ({ user: req['user'] }),
     }),
     HealthModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
