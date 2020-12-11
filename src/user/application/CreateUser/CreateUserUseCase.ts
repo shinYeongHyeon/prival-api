@@ -17,13 +17,15 @@ export class CreateUserUseCase
   async execute(request: CreateUserRequest): Promise<CreateUserResponse> {
     const userNameOrError = UserName.create(request.name);
     const userEmailOrError = UserEmail.create(request.email);
+    const userPasswordOrError = UserEmail.create(request.password);
 
     const user = User.createNew({
       userName: userNameOrError.value,
       userEmail: userEmailOrError.value,
+      userPassword: userPasswordOrError.value,
     }).value;
 
-    await this.userRepository.save(user, request.password);
+    await this.userRepository.save(user);
 
     return {
       ok: true,

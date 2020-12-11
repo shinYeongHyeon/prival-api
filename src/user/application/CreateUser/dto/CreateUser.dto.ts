@@ -1,5 +1,6 @@
 import { Field, InputType, ObjectType, PickType } from '@nestjs/graphql';
 
+import { CoreResponse } from '../../../../shared/dto/CoreResponse';
 import { UserEntity } from '../../../entity/User.entity';
 
 @ObjectType()
@@ -22,13 +23,7 @@ export class CreateUserRequest extends PickType(UserEntity, [
 ]) {}
 
 @ObjectType()
-export class CreateUserResponse {
-  @Field(() => Boolean)
-  ok: boolean;
-
-  @Field(() => String, { nullable: true })
-  error?: string;
-
+export class CreateUserResponse extends CoreResponse {
   @Field(() => CreateUserDto)
   user: CreateUserDto;
 }

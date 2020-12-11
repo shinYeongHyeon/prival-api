@@ -14,7 +14,7 @@ describe('UserModule (e2e)', () => {
 
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -28,11 +28,12 @@ describe('UserModule (e2e)', () => {
     await app.close();
   });
 
-  it('CreateAccount', () => {
-    return request(app.getHttpServer())
-      .post(GRAPHQL_ENDPOINT)
-      .send({
-        query: `mutation {
+  describe('CreateAccount', () => {
+    it('CreateAccount', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
           createUser(input: {
             name: "${USER_NAME}",
             email: "${USER_EMAIL}",
@@ -46,17 +47,101 @@ describe('UserModule (e2e)', () => {
             }
           }
         }`,
-      })
-      .expect(200)
-      .expect((response) => {
-        const {
-          body: {
-            data: { createUser },
-          },
-        } = response;
-        expect(createUser.ok).toBe(true);
-        expect(createUser.user.name).toEqual(USER_NAME);
-        expect(createUser.user.email).toEqual(USER_EMAIL);
-      });
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { createUser },
+            },
+          } = response;
+          expect(createUser.ok).toBe(true);
+          expect(createUser.user.name).toEqual(USER_NAME);
+          expect(createUser.user.email).toEqual(USER_EMAIL);
+        });
+    });
+  });
+
+  describe('Login', () => {
+    it('정상 로그인', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
+          login(input: {
+            email: "${USER_EMAIL}",
+            password: "${USER_PASSWORD}"
+          }) {
+            ok
+            error
+            token
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = response;
+          expect(login.ok).toBe(true);
+          expect(login.token).toBeDefined();
+        });
+    });
+
+    it('없는 아이디 로그인은 실패', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
+          login(input: {
+            email: "wrong@email.com",
+            password: "${USER_PASSWORD}"
+          }) {
+            ok
+            error
+            token
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = response;
+          expect(login.ok).toBe(false);
+          expect(login.token).toBeNull();
+        });
+    });
+
+    it('틀린 비밀번호 로그인은 실패', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
+          login(input: {
+            email: "${USER_EMAIL}",
+            password: "wrongPwd"
+          }) {
+            ok
+            error
+            token
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = response;
+          expect(login.ok).toBe(false);
+          expect(login.token).toBeNull();
+        });
+    });
   });
 });

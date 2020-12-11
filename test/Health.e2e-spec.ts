@@ -1,5 +1,4 @@
 import * as request from 'supertest';
-import { getConnection } from 'typeorm';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -10,14 +9,12 @@ const GRAPHQL_ENDPOINT = '/graphql';
 describe('Health (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
-
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = module.createNestApplication();
-    await getConnection().dropDatabase();
     await app.init();
   });
 
