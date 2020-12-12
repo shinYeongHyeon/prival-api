@@ -13,7 +13,7 @@ import { LoginUseCase } from '../application/Login/LoginUseCase';
 export class UserResolver {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
-    private readonly loginUseCase: LoginUseCase
+    private readonly loginUseCase: LoginUseCase,
   ) {}
 
   @Mutation(() => CreateUserResponse)
