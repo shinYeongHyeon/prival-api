@@ -1,12 +1,12 @@
 import { isUndefined } from 'lodash';
 import * as bcrypt from 'bcrypt';
 import { Inject } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 
 import { IUseCase } from '../../../shared/core/IUseCase';
 import { LoginRequest, LoginResponse } from './dto/Login.dto';
 import { IUserRepository } from '../../infra/interface/IUserRepository';
 import { User } from '../../domain/User';
+import { JwtService } from '../../../jwt/JwtService';
 
 export class LoginUseCase implements IUseCase<LoginRequest, LoginResponse> {
   constructor(

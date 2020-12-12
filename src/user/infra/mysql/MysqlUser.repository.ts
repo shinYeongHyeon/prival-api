@@ -26,7 +26,19 @@ export class MysqlUserRepository implements IUserRepository {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async find(id: string): Promise<User> | undefined {
+    const foundUser = await this.userRepository.findOne(id, {
+      select: ['id', 'email', 'name', 'password', 'createdAt'],
+    });
+
+    if (!foundUser) {
+      return undefined;
+    }
+
+    return UserModelMapper.toDomain(foundUser);
+  }
+
+  async findByEmail(email: string): Promise<User> | undefined {
     const foundUser = await this.userRepository.findOne(
       { email },
       { select: ['id', 'email', 'name', 'password', 'createdAt'] },
