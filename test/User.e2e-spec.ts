@@ -11,6 +11,7 @@ describe('UserModule (e2e)', () => {
   const USER_NAME = '신영현_테스트';
   const USER_EMAIL = 'den.shin.dev@gmail.com';
   const USER_PASSWORD = '123456789';
+  const DUPLICATE_EMAIL_ERROR_MESSAGE = 'Request email was duplicated.';
 
   let app: INestApplication;
 
@@ -29,7 +30,7 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('CreateAccount', () => {
-    it('CreateAccount', () => {
+    it('정상 생성', () => {
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
         .send({
@@ -58,6 +59,40 @@ describe('UserModule (e2e)', () => {
           expect(createUser.ok).toBe(true);
           expect(createUser.user.name).toEqual(USER_NAME);
           expect(createUser.user.email).toEqual(USER_EMAIL);
+        });
+    });
+
+    it('중복된 이메일은 가입 실패', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
+          createUser(input: {
+            name: "${USER_NAME}",
+            email: "${USER_EMAIL}",
+            password: "${USER_PASSWORD}"
+          }) {
+            ok
+            error
+            user {
+              id
+              email
+              name
+            }
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { createUser },
+            },
+          } = response;
+
+          expect(createUser.ok).toBe(false);
+          expect(createUser.error).toEqual(DUPLICATE_EMAIL_ERROR_MESSAGE);
+          expect(createUser.user).toBeNull();
         });
     });
   });

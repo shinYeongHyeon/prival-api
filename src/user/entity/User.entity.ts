@@ -11,7 +11,7 @@ import { CoreEntity } from '../../shared/enitity/Core.entity';
 @Entity({ name: 'user' })
 export class UserEntity extends CoreEntity {
   @Field(() => String)
-  @Column()
+  @Column({ unique: true })
   @IsEmail()
   email: string;
 

@@ -37,7 +37,6 @@ import { AuthModule } from './auth/auth.module';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'] }),
     }),
     HealthModule,
     UserModule,

@@ -24,6 +24,6 @@ export class CreateUserRequest extends PickType(UserEntity, [
 
 @ObjectType()
 export class CreateUserResponse extends CoreResponse {
-  @Field(() => CreateUserDto)
-  user: CreateUserDto;
+  @Field(() => CreateUserDto, { nullable: true })
+  user?: CreateUserDto;
 }
