@@ -9,12 +9,15 @@ const GRAPHQL_ENDPOINT = '/graphql';
 
 describe('UserModule (e2e)', () => {
   const USER_NAME = '신영현_테스트';
+  const MODIFY_NAME = '수정_테스트';
   const USER_EMAIL = 'den.shin.dev@gmail.com';
   const USER_PASSWORD = '123456789';
+  const MODIFY_PWD = 'TESTTEST';
   const DUPLICATE_EMAIL_ERROR_MESSAGE = 'Request email was duplicated.';
 
   let app: INestApplication;
   let createdId: string;
+  let loginToken: string;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -183,6 +186,8 @@ describe('UserModule (e2e)', () => {
           } = response;
           expect(login.ok).toBe(true);
           expect(login.token).toBeDefined();
+
+          loginToken = login.token;
         });
     });
 
@@ -237,6 +242,66 @@ describe('UserModule (e2e)', () => {
           } = response;
           expect(login.ok).toBe(false);
           expect(login.token).toBeNull();
+        });
+    });
+  });
+
+  describe('editUserProfile', () => {
+    it('정상적으로 변경 요청이 이뤄졌는지', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set('X-JWT', loginToken)
+        .send({
+          query: `
+          mutation {
+            editUserProfile(input: {
+              name: "${MODIFY_NAME}",
+              password: "${MODIFY_PWD}"
+            }) {
+              ok
+              error
+            }
+          }
+          `,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { editUserProfile },
+            },
+          } = response;
+
+          expect(editUserProfile.ok).toBe(true);
+        });
+    });
+
+    it('변경된 비밀번호로 로그인 되는지', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
+          login(input: {
+            email: "${USER_EMAIL}",
+            password: "${MODIFY_PWD}"
+          }) {
+            ok
+            error
+            token
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = response;
+          expect(login.ok).toBe(true);
+          expect(login.token).toBeDefined();
+
+          loginToken = login.token;
         });
     });
   });

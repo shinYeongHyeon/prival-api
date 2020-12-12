@@ -19,6 +19,13 @@ import {
 import { FindUserUseCase } from '../application/FindUser/FindUserUseCase';
 import { AuthGuard } from '../../auth/auth.guard';
 import { AuthUser } from '../../auth/AuthUser.decorator';
+import {
+  EditUserProfileRequest,
+  EditUserProfileRequestDto,
+  EditUserProfileResponse,
+} from '../application/EditUserProfile/dto/EditUserProfile.dto';
+import { EditUserProfileUseCase } from '../application/EditUserProfile/EditUserProfileUseCase';
+import { UserEntity } from '../entity/User.entity';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -26,6 +33,7 @@ export class UserResolver {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly findUserUseCase: FindUserUseCase,
     private readonly loginUseCase: LoginUseCase,
+    private readonly editUserProfileUseCase: EditUserProfileUseCase,
   ) {}
 
   @Mutation(() => CreateUserResponse)
@@ -47,5 +55,18 @@ export class UserResolver {
     @Args('input') loginRequest: LoginRequest,
   ): Promise<LoginResponse> {
     return await this.loginUseCase.execute(loginRequest);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => EditUserProfileResponse)
+  async editUserProfile(
+    @AuthUser() authUser: UserEntity,
+    @Args('input') editUserProfileRequest: EditUserProfileRequest,
+  ): Promise<EditUserProfileResponse> {
+    const useCaseRequest: EditUserProfileRequestDto = {
+      id: authUser.id,
+      ...editUserProfileRequest,
+    };
+    return await this.editUserProfileUseCase.execute(useCaseRequest);
   }
 }
