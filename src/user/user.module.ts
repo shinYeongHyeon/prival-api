@@ -7,6 +7,7 @@ import { MysqlUserRepository } from './infra/mysql/MysqlUser.repository';
 import { UserResolver } from './resolver/User.resolver';
 import { LoginUseCase } from './application/Login/LoginUseCase';
 import { FindUserUseCase } from './application/FindUser/FindUserUseCase';
+import { EditUserProfileUseCase } from './application/EditUserProfile/EditUserProfileUseCase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity])],
@@ -14,6 +15,7 @@ import { FindUserUseCase } from './application/FindUser/FindUserUseCase';
     CreateUserUseCase,
     FindUserUseCase,
     LoginUseCase,
+    EditUserProfileUseCase,
     UserResolver,
     {
       provide: 'USER_REPOSITORY',
