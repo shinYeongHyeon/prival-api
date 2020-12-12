@@ -1,3 +1,4 @@
+import { IsString } from 'class-validator';
 import { CreateDateColumn, PrimaryColumn } from 'typeorm';
 import { Field, ObjectType } from '@nestjs/graphql';
 
@@ -5,6 +6,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 export class CoreEntity {
   @Field(() => String)
   @PrimaryColumn()
+  @IsString()
   id: string;
 
   @Field(() => Date)

@@ -15,6 +15,10 @@ export class InMemoryUserRepository implements IUserRepository {
     return clonedUser;
   }
 
+  async find(id: string): Promise<User> | undefined {
+    return find(this.items, (item) => item.id.toValue().toString() === id);
+  }
+
   async findByEmail(email: string): Promise<User> {
     return find(this.items, (item) => item.email.value === email);
   }

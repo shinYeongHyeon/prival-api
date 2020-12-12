@@ -14,6 +14,7 @@ describe('UserModule (e2e)', () => {
   const DUPLICATE_EMAIL_ERROR_MESSAGE = 'Request email was duplicated.';
 
   let app: INestApplication;
+  let createdId: string;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -59,6 +60,8 @@ describe('UserModule (e2e)', () => {
           expect(createUser.ok).toBe(true);
           expect(createUser.user.name).toEqual(USER_NAME);
           expect(createUser.user.email).toEqual(USER_EMAIL);
+
+          createdId = createUser.user.id;
         });
     });
 
@@ -93,6 +96,64 @@ describe('UserModule (e2e)', () => {
           expect(createUser.ok).toBe(false);
           expect(createUser.error).toEqual(DUPLICATE_EMAIL_ERROR_MESSAGE);
           expect(createUser.user).toBeNull();
+        });
+    });
+  });
+
+  describe('find', () => {
+    it('정상 find', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `{
+          find(input:{
+            id: "${createdId}",
+          }) {
+            ok
+            user {
+              id
+              email
+              name
+            }
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { find },
+            },
+          } = response;
+
+          expect(find.ok).toBe(true);
+          expect(find.user.email).toBe(USER_EMAIL);
+        });
+    });
+
+    it('없는 아이디로의 find 는 실패', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `{
+          find(input:{
+            id: "wrongId",
+          }) {
+            ok
+            error
+          }
+        }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { find },
+            },
+          } = response;
+
+          expect(find.ok).toBe(false);
+          expect(find.error).toBe('Can`t found User.');
         });
     });
   });
