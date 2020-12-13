@@ -15,10 +15,11 @@ import { JwtMiddleware } from './jwt/JwtMiddleWare';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CalendarModule } from './calendar/calendar.module';
+import { ScheduleModule } from './schedule/schedule.module';
 import { UserEntity } from './user/entity/User.entity';
 import { UsersCalendarEntity } from './user/entity/UsersCalendar.entity';
 import { CalendarEntity } from './calendar/entity/Calendar.entity';
-import { ScheduleEntity } from './calendar/entity/Schedule.entity';
+import { ScheduleEntity } from './schedule/entity/Schedule.entity';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { ScheduleEntity } from './calendar/entity/Schedule.entity';
     UserModule,
     AuthModule,
     CalendarModule,
+    ScheduleModule,
   ],
   controllers: [],
   providers: [],

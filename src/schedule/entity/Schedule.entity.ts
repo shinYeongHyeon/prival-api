@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 
 import { CoreEntity } from '../../shared/enitity/Core.entity';
-import { CalendarEntity } from './Calendar.entity';
+import { CalendarEntity } from '../../calendar/entity/Calendar.entity';
 
 @InputType({ isAbstract: true })
 @ObjectType()
