@@ -4,12 +4,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 
-import { UserModule } from './user/user.module';
 import { HealthModule } from './health/Health.module';
-import { UserEntity } from './user/entity/User.entity';
-import { AuthModule } from './auth/auth.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/JwtMiddleWare';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { UserEntity } from './user/entity/User.entity';
+import { CalendarModule } from './calendar/calendar.module';
+import { CalendarEntity } from './calendar/entity/Calendar.entity';
 
 @Module({
   imports: [
@@ -36,7 +38,7 @@ import { JwtMiddleware } from './jwt/JwtMiddleWare';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV === 'dev',
-      entities: [UserEntity],
+      entities: [UserEntity, CalendarEntity],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -48,6 +50,7 @@ import { JwtMiddleware } from './jwt/JwtMiddleWare';
     HealthModule,
     UserModule,
     AuthModule,
+    CalendarModule,
   ],
   controllers: [],
   providers: [],
