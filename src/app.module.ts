@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { UserEntity } from './user/entity/User.entity';
 import { CalendarModule } from './calendar/calendar.module';
 import { CalendarEntity } from './calendar/entity/Calendar.entity';
+import { ScheduleEntity } from './calendar/entity/Schedule.entity';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { CalendarEntity } from './calendar/entity/Calendar.entity';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV === 'dev',
-      entities: [UserEntity, CalendarEntity],
+      entities: [UserEntity, CalendarEntity, ScheduleEntity],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,

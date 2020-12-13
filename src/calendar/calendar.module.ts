@@ -4,6 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CalendarEntity } from './entity/Calendar.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CalendarEntity])],
+  imports: [TypeOrmModule.forFeature([CalendarEntity, CalendarEntity])],
 })
 export class CalendarModule {}
