@@ -1,5 +1,10 @@
 import * as Joi from 'joi';
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -9,8 +14,9 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/JwtMiddleWare';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { UserEntity } from './user/entity/User.entity';
 import { CalendarModule } from './calendar/calendar.module';
+import { UserEntity } from './user/entity/User.entity';
+import { UsersCalendarEntity } from './user/entity/UsersCalendar.entity';
 import { CalendarEntity } from './calendar/entity/Calendar.entity';
 import { ScheduleEntity } from './calendar/entity/Schedule.entity';
 
@@ -39,7 +45,12 @@ import { ScheduleEntity } from './calendar/entity/Schedule.entity';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV === 'dev',
-      entities: [UserEntity, CalendarEntity, ScheduleEntity],
+      entities: [
+        UserEntity,
+        UsersCalendarEntity,
+        CalendarEntity,
+        ScheduleEntity,
+      ],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
