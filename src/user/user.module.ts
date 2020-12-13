@@ -7,10 +7,11 @@ import { FindUserUseCase } from './application/FindUser/FindUserUseCase';
 import { EditUserProfileUseCase } from './application/EditUserProfile/EditUserProfileUseCase';
 import { MysqlUserRepository } from './infra/mysql/MysqlUser.repository';
 import { UserEntity } from './entity/User.entity';
+import { UsersCalendarEntity } from './entity/UsersCalendar.entity';
 import { UserResolver } from './resolver/User.resolver';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
+  imports: [TypeOrmModule.forFeature([UserEntity, UsersCalendarEntity])],
   providers: [
     CreateUserUseCase,
     FindUserUseCase,
