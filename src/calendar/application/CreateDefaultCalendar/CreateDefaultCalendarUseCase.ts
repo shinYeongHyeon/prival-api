@@ -1,7 +1,10 @@
 import { Inject } from '@nestjs/common';
 
 import { IUseCase } from '../../../shared/core/IUseCase';
-import { CreateDefaultCalendarRequest, CreateDefaultCalendarResponse } from './dto/CreateDefaultCalendar.dto';
+import {
+  CreateDefaultCalendarRequest,
+  CreateDefaultCalendarResponse,
+} from './dto/CreateDefaultCalendar.dto';
 import { ICalendarRepository } from '../../infra/interface/ICalendarRepository';
 import { CalendarName } from '../../domain/CalendarName';
 import { CalendarInvitationCode } from '../../domain/CalendarInvitationCode';
@@ -39,6 +42,9 @@ export class CreateDefaultCalendarUseCase
       calendar: {
         id: calendar.id.toValue().toString(),
         name: calendar.name.value,
+        onlyOwn: true,
+        invitationCode: '',
+        createdAt: calendar.createdAt,
       },
     };
   }
