@@ -1,13 +1,12 @@
 import * as request from 'supertest';
-import { getConnection } from 'typeorm';
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 
-import { AppModule } from '../src/app.module';
-
-const GRAPHQL_ENDPOINT = '/graphql';
+import { TestAppManager } from './support/TestAppManager';
+import { TestMysqlManager } from './support/TestMysqlManager';
+import { TestUser } from './support/TestUser';
 
 describe('UserModule (e2e)', () => {
+  const GRAPHQL_ENDPOINT = '/graphql';
   const USER_NAME = '신영현_테스트';
   const MODIFY_NAME = '수정_테스트';
   const USER_EMAIL = 'den.shin.dev@gmail.com';
@@ -15,64 +14,40 @@ describe('UserModule (e2e)', () => {
   const MODIFY_PWD = 'TESTTEST';
   const DUPLICATE_EMAIL_ERROR_MESSAGE = 'Request email was duplicated.';
 
+  const loginQuery = (email: string, password: string) => {
+    return {
+      query: `mutation {
+          login(input: {
+            email: "${email}",
+            password: "${password}"
+          }) {
+            ok
+            error
+            token
+          }
+        }`,
+    };
+  };
+
+  let appManager: TestAppManager;
   let app: INestApplication;
-  let createdId: string;
-  let loginToken: string;
+  let user: TestUser;
 
-  beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = module.createNestApplication();
-    await app.init();
+  beforeEach(async () => {
+    appManager = new TestAppManager();
+    await appManager.init();
+    app = appManager.app;
+    user = new TestUser(app);
+    const dbManager = new TestMysqlManager(app);
+    await dbManager.clearDatabases();
   });
 
-  afterAll(async () => {
-    await getConnection().dropDatabase();
-    await app.close();
+  afterEach(async () => {
+    await appManager.deinit();
   });
 
   describe('CreateAccount', () => {
-    it('정상 생성', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: `mutation {
-          createUser(input: {
-            name: "${USER_NAME}",
-            email: "${USER_EMAIL}",
-            password: "${USER_PASSWORD}"
-          }) {
-            ok
-            user {
-              id
-              email
-              name
-            }
-          }
-        }`,
-        })
-        .expect(200)
-        .expect((response) => {
-          const {
-            body: {
-              data: { createUser },
-            },
-          } = response;
-          expect(createUser.ok).toBe(true);
-          expect(createUser.user.name).toEqual(USER_NAME);
-          expect(createUser.user.email).toEqual(USER_EMAIL);
-
-          createdId = createUser.user.id;
-        });
-    });
-
-    it('중복된 이메일은 가입 실패', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: `mutation {
+    const CREATE_QUERY = `mutation {
           createUser(input: {
             name: "${USER_NAME}",
             email: "${USER_EMAIL}",
@@ -86,8 +61,31 @@ describe('UserModule (e2e)', () => {
               name
             }
           }
-        }`,
-        })
+        }`;
+
+    it('정상 생성', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({ query: CREATE_QUERY })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { createUser },
+            },
+          } = response;
+          expect(createUser.ok).toBe(true);
+          expect(createUser.user.name).toEqual(USER_NAME);
+          expect(createUser.user.email).toEqual(USER_EMAIL);
+        });
+    });
+
+    it('중복된 이메일은 가입 실패', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({ query: CREATE_QUERY })
         .expect(200)
         .expect((response) => {
           const {
@@ -104,13 +102,19 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('find', () => {
-    it('정상 find', () => {
+    it('정상 find', async () => {
+      const createdUser = await user.createUser(
+        USER_NAME,
+        USER_EMAIL,
+        USER_PASSWORD,
+      );
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
         .send({
           query: `{
           find(input:{
-            id: "${createdId}",
+            id: "${createdUser.id}",
           }) {
             ok
             user {
@@ -162,21 +166,12 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('Login', () => {
-    it('정상 로그인', () => {
+    it('정상 로그인', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: `mutation {
-          login(input: {
-            email: "${USER_EMAIL}",
-            password: "${USER_PASSWORD}"
-          }) {
-            ok
-            error
-            token
-          }
-        }`,
-        })
+        .send(loginQuery(USER_EMAIL, USER_PASSWORD))
         .expect(200)
         .expect((response) => {
           const {
@@ -186,26 +181,15 @@ describe('UserModule (e2e)', () => {
           } = response;
           expect(login.ok).toBe(true);
           expect(login.token).toBeDefined();
-
-          loginToken = login.token;
         });
     });
 
-    it('없는 아이디 로그인은 실패', () => {
+    it('없는 아이디 로그인은 실패', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: `mutation {
-          login(input: {
-            email: "wrong@email.com",
-            password: "${USER_PASSWORD}"
-          }) {
-            ok
-            error
-            token
-          }
-        }`,
-        })
+        .send(loginQuery('wrong@email.com', USER_PASSWORD))
         .expect(200)
         .expect((response) => {
           const {
@@ -218,21 +202,12 @@ describe('UserModule (e2e)', () => {
         });
     });
 
-    it('틀린 비밀번호 로그인은 실패', () => {
+    it('틀린 비밀번호 로그인은 실패', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: `mutation {
-          login(input: {
-            email: "${USER_EMAIL}",
-            password: "wrongPwd"
-          }) {
-            ok
-            error
-            token
-          }
-        }`,
-        })
+        .send(loginQuery(USER_EMAIL, 'wrongPwd'))
         .expect(200)
         .expect((response) => {
           const {
@@ -247,10 +222,13 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('editUserProfile', () => {
-    it('정상적으로 변경 요청이 이뤄졌는지', () => {
+    it('정상적으로 변경 요청이 이뤄졌는지', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+      const logOnUser = await user.login(USER_EMAIL, USER_PASSWORD);
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
-        .set('X-JWT', loginToken)
+        .set('X-JWT', logOnUser.token)
         .send({
           query: `
           mutation {
@@ -276,21 +254,14 @@ describe('UserModule (e2e)', () => {
         });
     });
 
-    it('변경된 비밀번호로 로그인 되는지', () => {
+    it('변경된 비밀번호로 로그인 되는지', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+      const logOnUser = await user.login(USER_EMAIL, USER_PASSWORD);
+      await user.editProfile(logOnUser.token, MODIFY_NAME, MODIFY_PWD);
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: `mutation {
-          login(input: {
-            email: "${USER_EMAIL}",
-            password: "${MODIFY_PWD}"
-          }) {
-            ok
-            error
-            token
-          }
-        }`,
-        })
+        .send(loginQuery(USER_EMAIL, MODIFY_PWD))
         .expect(200)
         .expect((response) => {
           const {
@@ -300,8 +271,6 @@ describe('UserModule (e2e)', () => {
           } = response;
           expect(login.ok).toBe(true);
           expect(login.token).toBeDefined();
-
-          loginToken = login.token;
         });
     });
   });
