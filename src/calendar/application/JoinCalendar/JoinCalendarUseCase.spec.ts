@@ -3,6 +3,11 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { IUsersCalendarRepository } from '../../infra/interface/IUsersCalendarRepository';
 import { UserRole } from '../../entity/UsersCalendar.entity';
 import { JoinCalendarUseCase } from './JoinCalendarUseCase';
+import { User } from '../../../user/domain/User';
+import { UserEmail } from '../../../user/domain/UserEmail';
+import { UserName } from '../../../user/domain/UserName';
+import { UserPassword } from '../../../user/domain/UserPassword';
+import { UsersCalendar } from '../../domain/UsersCalendar';
 
 describe('JoinCalendarUseCase', () => {
   const USER_ID = 'user_id';
@@ -17,6 +22,10 @@ describe('JoinCalendarUseCase', () => {
     uut = new JoinCalendarUseCase(usersCalendarRepository);
   });
 
+  function givenSaveThrowError() {
+    usersCalendarRepository.save.mockRejectedValue(new Error());
+  }
+
   it('생성되었는지', () => {
     expect(uut).toBeDefined();
   });
@@ -29,5 +38,17 @@ describe('JoinCalendarUseCase', () => {
     });
 
     expect(joinedResponse.ok).toBe(true);
+  });
+
+  it('에러를 정상적으로 뱉어내는지', async () => {
+    givenSaveThrowError();
+
+    const joinedResponse = await uut.execute({
+      calendarId: CALENDAR_ID,
+      userId: USER_ID,
+      userRole: USER_ROLE,
+    });
+
+    expect(joinedResponse.ok).toBe(false);
   });
 });
