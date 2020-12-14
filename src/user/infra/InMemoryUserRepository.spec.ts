@@ -1,4 +1,3 @@
-import { UniqueEntityId } from '../../shared/domain/UniqueEntityId';
 import { IUserRepository } from './interface/IUserRepository';
 import { User } from '../domain/User';
 import { UserName } from '../domain/UserName';
