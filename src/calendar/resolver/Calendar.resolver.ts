@@ -5,13 +5,16 @@ import { AuthGuard } from '../../auth/auth.guard';
 import { AuthUser } from '../../auth/AuthUser.decorator';
 import { CreateDefaultCalendarUseCase } from '../application/CreateDefaultCalendar/CreateDefaultCalendarUseCase';
 import { CreateDefaultCalendarResponse } from '../application/CreateDefaultCalendar/dto/CreateDefaultCalendar.dto';
+import { JoinCalendarUseCase } from '../application/JoinCalendar/JoinCalendarUseCase';
 import { Calendar } from '../domain/Calendar';
+import { UserRole } from '../entity/UsersCalendar.entity';
 import { UserEntity } from '../../user/entity/User.entity';
 
 @Resolver(() => Calendar)
 export class CalendarResolver {
   constructor(
     private readonly createDefaultCalendarUseCase: CreateDefaultCalendarUseCase,
+    private readonly joinCalendarUseCase: JoinCalendarUseCase,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -19,8 +22,23 @@ export class CalendarResolver {
   async createDefaultCalendar(
     @AuthUser() authUser: UserEntity,
   ): Promise<CreateDefaultCalendarResponse> {
-    return await this.createDefaultCalendarUseCase.execute({
-      name: authUser.name,
-    });
+    const createDefaultCalendarUseCaseResponse = await this.createDefaultCalendarUseCase.execute(
+      {
+        name: authUser.name,
+      },
+    );
+
+    if (createDefaultCalendarUseCaseResponse.ok) {
+      const userId = authUser.id;
+      const calendarId = createDefaultCalendarUseCaseResponse.calendar.id;
+
+      await this.joinCalendarUseCase.execute({
+        calendarId,
+        userId,
+        userRole: UserRole.CREATOR,
+      });
+    }
+
+    return createDefaultCalendarUseCaseResponse;
   }
 }

@@ -65,5 +65,4 @@ describe('CalendarModule (e2e)', () => {
         });
     });
   });
-
 });
