@@ -1,25 +1,26 @@
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 
-import { AppModule } from '../src/app.module';
+import { TestAppManager } from './support/TestAppManager';
+import { TestMysqlManager } from './support/TestMysqlManager';
 
 const GRAPHQL_ENDPOINT = '/graphql';
 
 describe('Health (e2e)', () => {
+  let appManager: TestAppManager;
   let app: INestApplication;
 
-  beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+  beforeEach(async () => {
+    appManager = new TestAppManager();
+    await appManager.init();
+    app = appManager.app;
 
-    app = module.createNestApplication();
-    await app.init();
+    const dbManager = new TestMysqlManager(app);
+    await dbManager.clearDatabases();
   });
 
-  afterAll(async () => {
-    await app.close();
+  afterEach(async () => {
+    await appManager.deinit();
   });
 
   it('HealthCheck', () => {
