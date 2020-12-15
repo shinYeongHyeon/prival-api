@@ -41,6 +41,9 @@ export class MySqlUsersCalendarRepository implements IUsersCalendarRepository {
       {
         user,
         userRole: UserRole.CREATOR,
+        calendar: {
+          onlyOwn: true,
+        },
       },
       {
         relations: ['user', 'calendar'],
