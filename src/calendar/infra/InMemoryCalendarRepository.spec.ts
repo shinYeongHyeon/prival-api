@@ -11,6 +11,7 @@ describe('InMemoryCalendarRepository', () => {
 
   let uut: ICalendarRepository;
   let createdCalendar: Calendar;
+  let calendarId: string;
 
   beforeAll(() => {
     uut = new InMemoryCalendarRepository();
@@ -24,13 +25,23 @@ describe('InMemoryCalendarRepository', () => {
       calendarOnlyOwn: ONLY_OWN,
       calendarInvitationCode,
     }).value;
+    calendarId = createdCalendar.id.toValue().toString();
   });
 
-  describe('saveDefault', () => {
+  describe('save', () => {
     it('저장이 잘 되는지', async () => {
-      const savedCalendar = await uut.saveDefault(createdCalendar);
+      const savedCalendar = await uut.save(createdCalendar);
 
       expect(createdCalendar.isEqual(savedCalendar)).toBe(true);
+    });
+  });
+
+  describe('find', () => {
+    it('잘 찾아지는지', async () => {
+      const foundCalendar = await uut.find(calendarId);
+
+      expect(foundCalendar).toBeDefined();
+      expect(foundCalendar.name.value).toEqual(CALENDAR_NAME);
     });
   });
 });

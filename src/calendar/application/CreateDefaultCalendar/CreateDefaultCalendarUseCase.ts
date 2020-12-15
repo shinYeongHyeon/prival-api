@@ -46,7 +46,7 @@ export class CreateDefaultCalendarUseCase
       calendarInvitationCode,
     }).value;
 
-    await this.calendarRepository.saveDefault(calendar);
+    await this.calendarRepository.save(calendar);
 
     return {
       ok: true,

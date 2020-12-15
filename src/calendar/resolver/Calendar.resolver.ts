@@ -1,4 +1,4 @@
-import { Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
 import { AuthGuard } from '../../auth/auth.guard';
@@ -9,12 +9,18 @@ import { JoinCalendarUseCase } from '../application/JoinCalendar/JoinCalendarUse
 import { Calendar } from '../domain/Calendar';
 import { UserRole } from '../entity/UsersCalendar.entity';
 import { UserEntity } from '../../user/entity/User.entity';
+import {
+  CreateInvitationCodeRequest,
+  CreateInvitationCodeResponse,
+} from '../application/CreateInvitationCode/dto/CreateInvitationCode.dto';
+import { CreateInvitationCodeUseCase } from '../application/CreateInvitationCode/CreateInvitationCodeUseCase';
 
 @Resolver(() => Calendar)
 export class CalendarResolver {
   constructor(
     private readonly createDefaultCalendarUseCase: CreateDefaultCalendarUseCase,
     private readonly joinCalendarUseCase: JoinCalendarUseCase,
+    private readonly createInvitationCodeUseCase: CreateInvitationCodeUseCase,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -41,5 +47,15 @@ export class CalendarResolver {
     }
 
     return createDefaultCalendarUseCaseResponse;
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => CreateInvitationCodeResponse)
+  async createInvitationCode(
+    @Args('input') createInvitationCodeRequest: CreateInvitationCodeRequest,
+  ) {
+    return this.createInvitationCodeUseCase.execute(
+      createInvitationCodeRequest,
+    );
   }
 }

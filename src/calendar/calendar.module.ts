@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CreateDefaultCalendarUseCase } from './application/CreateDefaultCalendar/CreateDefaultCalendarUseCase';
 import { JoinCalendarUseCase } from './application/JoinCalendar/JoinCalendarUseCase';
+import { CreateInvitationCodeUseCase } from './application/CreateInvitationCode/CreateInvitationCodeUseCase';
 import { MySqlUsersCalendarRepository } from './infra/mysql/MySqlUsersCalendar.repository';
 import { MysqlUserRepository } from '../user/infra/mysql/MysqlUser.repository';
 import { MysqlCalendarRepository } from './infra/mysql/MysqlCalendar.repository';
@@ -18,6 +19,7 @@ import { CalendarResolver } from './resolver/Calendar.resolver';
   providers: [
     CreateDefaultCalendarUseCase,
     JoinCalendarUseCase,
+    CreateInvitationCodeUseCase,
     CalendarResolver,
     {
       provide: 'CALENDAR_REPOSITORY',
