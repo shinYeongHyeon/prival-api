@@ -72,6 +72,7 @@ describe('CalendarModule (e2e)', () => {
       await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
       const logOnUser = await user.login(USER_EMAIL, USER_PASSWORD);
       await calendar.createDefault(logOnUser.token);
+
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
         .set('X-JWT', logOnUser.token)
@@ -88,6 +89,41 @@ describe('CalendarModule (e2e)', () => {
           expect(createDefaultCalendar.error).toEqual(
             'Already has Default Calendar.',
           );
+        });
+    });
+  });
+
+  describe('createInvitationCode', () => {
+    it('잘 생성 되는지', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+      const logOnUser = await user.login(USER_EMAIL, USER_PASSWORD);
+      const calendarEntity = await calendar.createDefault(logOnUser.token);
+
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set('X-JWT', logOnUser.token)
+        .send({
+          query: `
+          mutation {
+            createInvitationCode(input : {
+              id: "${calendarEntity.id}",
+            }) {
+              ok
+              code
+            }
+          }`,
+        })
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { createInvitationCode },
+            },
+          } = response;
+
+          expect(createInvitationCode.ok).toBe(true);
+          expect(createInvitationCode.code).toBeGreaterThanOrEqual(1000);
+          expect(createInvitationCode.code).toBeLessThanOrEqual(10000);
         });
     });
   });

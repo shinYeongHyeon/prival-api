@@ -37,18 +37,19 @@ export class MySqlUsersCalendarRepository implements IUsersCalendarRepository {
     userId: string,
   ): Promise<UsersCalendar> | undefined {
     const user = await this.userRepository.findOne(userId);
-    const foundUsersCalendar = await this.usersCalendarRepository.findOne(
-      {
-        user,
-        userRole: UserRole.CREATOR,
-        calendar: {
-          onlyOwn: true,
-        },
-      },
-      {
-        relations: ['user', 'calendar'],
-      },
-    );
+
+    const foundUsersCalendar = await this.usersCalendarRepository
+      .createQueryBuilder('usersCalendar')
+      .innerJoinAndSelect(
+        'usersCalendar.calendar',
+        'calendar',
+        'calendar.onlyOwn = :onlyOwn',
+        { onlyOwn: true },
+      )
+      .innerJoinAndSelect('usersCalendar.user', 'user', 'user.id = :userId', {
+        userId: user.id,
+      })
+      .getOne();
 
     if (!foundUsersCalendar) {
       return undefined;

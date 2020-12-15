@@ -1,16 +1,24 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, find } from 'lodash';
 
 import { ICalendarRepository } from './interface/ICalendarRepository';
 import { Calendar } from '../domain/Calendar';
+import { UserRole } from '../entity/UsersCalendar.entity';
 
 export class InMemoryCalendarRepository implements ICalendarRepository {
-  private calendars: Calendar[] = [];
+  private items: Calendar[] = [];
 
-  saveDefault(calendar: Calendar): Promise<Calendar> {
+  save(calendar: Calendar): Promise<Calendar> {
     const clonedCalendar = cloneDeep(calendar);
 
-    this.calendars.push(clonedCalendar);
+    this.items.push(clonedCalendar);
 
     return clonedCalendar;
+  }
+
+  find(calendarId: string): Promise<Calendar> {
+    return find(
+      this.items,
+      (item) => item.id.toValue().toString() === calendarId,
+    );
   }
 }
