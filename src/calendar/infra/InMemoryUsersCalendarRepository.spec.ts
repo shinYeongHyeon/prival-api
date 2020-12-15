@@ -27,4 +27,34 @@ describe('InMemoryUsersCalendarRepository', () => {
       expect(createdUsersCalendar.isEqual(savedUsersCalendar)).toBe(true);
     });
   });
+
+  describe('findByUserId', () => {
+    it('잘 찾아지는지', async () => {
+      const foundUser = await uut.findDefaultByUserId(USER_ID);
+
+      expect(foundUser).toBeDefined();
+      expect(foundUser.calendarId).toEqual(CALENDAR_ID);
+      expect(foundUser.userRole).toEqual(USER_ROLE);
+    });
+
+    it('없는 유저는 못찾는지', async () => {
+      const foundUser = await uut.findDefaultByUserId('wrongId');
+
+      expect(foundUser).toBeUndefined();
+    });
+
+    it('유저캘린더는 있지만, 디폴트가 없는 경우에는 못찾는지', async () => {
+      const participantUser = 'anotherUser';
+      await uut.save(
+        UsersCalendar.createNew({
+          userId: participantUser,
+          calendarId: CALENDAR_ID,
+          userRole: UserRole.PARTICIPANT,
+        }).value,
+      );
+      const foundUser = await uut.findDefaultByUserId(participantUser);
+
+      expect(foundUser).toBeUndefined();
+    });
+  });
 });

@@ -9,6 +9,7 @@ import { ICalendarRepository } from '../../infra/interface/ICalendarRepository';
 import { CalendarName } from '../../domain/CalendarName';
 import { CalendarInvitationCode } from '../../domain/CalendarInvitationCode';
 import { Calendar } from '../../domain/Calendar';
+import { IUsersCalendarRepository } from '../../infra/interface/IUsersCalendarRepository';
 
 export class CreateDefaultCalendarUseCase
   implements
@@ -19,11 +20,21 @@ export class CreateDefaultCalendarUseCase
   constructor(
     @Inject('CALENDAR_REPOSITORY')
     private readonly calendarRepository: ICalendarRepository,
+    @Inject('USERS_CALENDAR_REPOSITORY')
+    private readonly usersCalendarRepository: IUsersCalendarRepository,
   ) {}
 
   async execute(
     request: CreateDefaultCalendarRequest,
   ): Promise<CreateDefaultCalendarResponse> {
+    const foundUsersDefaultCalendar = await this.usersCalendarRepository.findDefaultByUserId(
+      request.userId,
+    );
+
+    if (foundUsersDefaultCalendar) {
+      return { ok: false, error: 'Already has Default Calendar.' };
+    }
+
     const calendarName = CalendarName.create(request.name).value;
     const calendarInvitationCode = CalendarInvitationCode.create(
       this.DEFAULT_CALENDAR_INVITATION_CODE,

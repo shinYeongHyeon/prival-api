@@ -22,14 +22,15 @@ export class CalendarResolver {
   async createDefaultCalendar(
     @AuthUser() authUser: UserEntity,
   ): Promise<CreateDefaultCalendarResponse> {
+    const userId = authUser.id;
     const createDefaultCalendarUseCaseResponse = await this.createDefaultCalendarUseCase.execute(
       {
+        userId,
         name: authUser.name,
       },
     );
 
     if (createDefaultCalendarUseCaseResponse.ok) {
-      const userId = authUser.id;
       const calendarId = createDefaultCalendarUseCaseResponse.calendar.id;
 
       await this.joinCalendarUseCase.execute({

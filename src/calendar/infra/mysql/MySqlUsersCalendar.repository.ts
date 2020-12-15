@@ -3,9 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { IUsersCalendarRepository } from '../interface/IUsersCalendarRepository';
 import { UsersCalendar } from '../../domain/UsersCalendar';
-import { UsersCalendarEntity } from '../../entity/UsersCalendar.entity';
+import {
+  UserRole,
+  UsersCalendarEntity,
+} from '../../entity/UsersCalendar.entity';
 import { CalendarEntity } from '../../entity/Calendar.entity';
 import { UserEntity } from '../../../user/entity/User.entity';
+import { UsersCalendarMapper } from '../dto/UsersCalendarMapper';
 
 export class MySqlUsersCalendarRepository implements IUsersCalendarRepository {
   constructor(
@@ -27,5 +31,26 @@ export class MySqlUsersCalendarRepository implements IUsersCalendarRepository {
     });
 
     return usersCalendar;
+  }
+
+  async findDefaultByUserId(
+    userId: string,
+  ): Promise<UsersCalendar> | undefined {
+    const user = await this.userRepository.findOne(userId);
+    const foundUsersCalendar = await this.usersCalendarRepository.findOne(
+      {
+        user,
+        userRole: UserRole.CREATOR,
+      },
+      {
+        relations: ['user', 'calendar'],
+      },
+    );
+
+    if (!foundUsersCalendar) {
+      return undefined;
+    }
+
+    return UsersCalendarMapper.toDomain(foundUsersCalendar);
   }
 }
