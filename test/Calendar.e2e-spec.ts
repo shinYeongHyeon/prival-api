@@ -12,6 +12,21 @@ describe('CalendarModule (e2e)', () => {
   const USER_EMAIL = 'den.shin.dev@gmail.com';
   const USER_PASSWORD = '123456789';
 
+  const createDefaultQuery = () => {
+    return {
+      query: `mutation {
+        createDefaultCalendar {
+          ok
+          calendar {
+            id
+            name
+          }
+          error
+        }
+      }`,
+    };
+  };
+
   let appManager: TestAppManager;
   let app: INestApplication;
   let calendar: TestCalendar;
@@ -39,19 +54,7 @@ describe('CalendarModule (e2e)', () => {
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
         .set('X-JWT', logOnUser.token)
-        .send({
-          query: `
-          mutation {
-            createDefaultCalendar {
-              ok
-              calendar {
-                id
-                name
-              }
-              error
-            }
-          }`,
-        })
+        .send(createDefaultQuery())
         .expect(200)
         .expect((response) => {
           const {
@@ -62,6 +65,29 @@ describe('CalendarModule (e2e)', () => {
 
           expect(createDefaultCalendar.ok).toBe(true);
           expect(createDefaultCalendar.calendar.name).toEqual(USER_NAME);
+        });
+    });
+
+    it('중복 생성이 안되는지', async () => {
+      await user.createUser(USER_NAME, USER_EMAIL, USER_PASSWORD);
+      const logOnUser = await user.login(USER_EMAIL, USER_PASSWORD);
+      await calendar.createDefault(logOnUser.token);
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set('X-JWT', logOnUser.token)
+        .send(createDefaultQuery())
+        .expect(200)
+        .expect((response) => {
+          const {
+            body: {
+              data: { createDefaultCalendar },
+            },
+          } = response;
+
+          expect(createDefaultCalendar.ok).toBe(false);
+          expect(createDefaultCalendar.error).toEqual(
+            'Already has Default Calendar.',
+          );
         });
     });
   });

@@ -2,21 +2,29 @@ import { mock, MockProxy } from 'jest-mock-extended';
 
 import { ICalendarRepository } from '../../infra/interface/ICalendarRepository';
 import { CreateDefaultCalendarUseCase } from './CreateDefaultCalendarUseCase';
+import { IUsersCalendarRepository } from '../../infra/interface/IUsersCalendarRepository';
 
 describe('CreateDefaultCalendarUseCaseSpec', () => {
+  const USER_ID = 'user_id';
   const CALENDAR_NAME = '유저이름';
 
   let uut: CreateDefaultCalendarUseCase;
   let calendarRepository: MockProxy<ICalendarRepository>;
+  let usersCalendarRepository: MockProxy<IUsersCalendarRepository>;
 
   beforeAll(() => {
     calendarRepository = mock<ICalendarRepository>();
-    uut = new CreateDefaultCalendarUseCase(calendarRepository);
+    usersCalendarRepository = mock<IUsersCalendarRepository>();
+    uut = new CreateDefaultCalendarUseCase(
+      calendarRepository,
+      usersCalendarRepository,
+    );
   });
 
-  async function createCalendar(name: string) {
+  async function createCalendar(userId: string, name: string) {
     return await uut.execute({
-      name: name,
+      userId,
+      name,
     });
   }
 
@@ -26,6 +34,7 @@ describe('CreateDefaultCalendarUseCaseSpec', () => {
 
   it('캘린더 Create', async () => {
     const createDefaultCalendarUseCaseResponse = await createCalendar(
+      USER_ID,
       CALENDAR_NAME,
     );
 
