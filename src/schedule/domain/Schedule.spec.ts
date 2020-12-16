@@ -10,6 +10,7 @@ describe('Schedule', () => {
   const TITLE = '달력1';
   const DESCRIPTION = '설명';
   const ONLY_DATE = false;
+  const CALENDAR_ID = 'schedule';
 
   let scheduleOrError: Result<Schedule>;
   let scheduleTitle: ScheduleTitle;
@@ -29,6 +30,7 @@ describe('Schedule', () => {
       onlyDate: ONLY_DATE,
       start: scheduleStart,
       end: scheduleEnd,
+      calendarId: CALENDAR_ID,
     });
   });
 
@@ -43,6 +45,7 @@ describe('Schedule', () => {
       onlyDate: ONLY_DATE,
       start: scheduleEnd,
       end: scheduleStart,
+      calendarId: CALENDAR_ID,
     });
 
     expect(scheduleError.isSuccess).toBe(false);

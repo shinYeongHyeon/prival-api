@@ -3,11 +3,6 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { IUsersCalendarRepository } from '../../infra/interface/IUsersCalendarRepository';
 import { UserRole } from '../../entity/UsersCalendar.entity';
 import { JoinCalendarUseCase } from './JoinCalendarUseCase';
-import { User } from '../../../user/domain/User';
-import { UserEmail } from '../../../user/domain/UserEmail';
-import { UserName } from '../../../user/domain/UserName';
-import { UserPassword } from '../../../user/domain/UserPassword';
-import { UsersCalendar } from '../../domain/UsersCalendar';
 
 describe('JoinCalendarUseCase', () => {
   const USER_ID = 'user_id';

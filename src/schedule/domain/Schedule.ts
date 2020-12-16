@@ -11,6 +11,7 @@ interface ScheduleProps {
   onlyDate: boolean;
   title: ScheduleTitle;
   description: ScheduleDescription;
+  calendarId: string;
   createdAt: Date;
 }
 
@@ -20,6 +21,7 @@ interface ScheduleNewProps {
   onlyDate: boolean;
   title: ScheduleTitle;
   description: ScheduleDescription;
+  calendarId: string;
 }
 
 export class Schedule extends AggregateRoot<ScheduleProps> {
@@ -61,5 +63,9 @@ export class Schedule extends AggregateRoot<ScheduleProps> {
 
   get createdAt(): Date {
     return this.props.createdAt;
+  }
+
+  get calendarId(): string {
+    return this.props.calendarId;
   }
 }
