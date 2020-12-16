@@ -21,8 +21,6 @@ import { UsersCalendarEntity } from './calendar/entity/UsersCalendar.entity';
 import { CalendarEntity } from './calendar/entity/Calendar.entity';
 import { ScheduleEntity } from './schedule/entity/Schedule.entity';
 
-console.log('build test');
-
 @Module({
   imports: [
     ConfigModule.forRoot({
