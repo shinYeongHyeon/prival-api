@@ -6,6 +6,9 @@ WORKDIR /app
 COPY . .
 ## Nest.js project를 build 한다
 RUN npm install
+
+RUN npm rebuild bcrypt --build-from-source
+
 RUN npm run build
 
 
