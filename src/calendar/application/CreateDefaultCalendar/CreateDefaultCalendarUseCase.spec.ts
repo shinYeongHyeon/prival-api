@@ -1,12 +1,15 @@
 import { mock, MockProxy } from 'jest-mock-extended';
 
-import { ICalendarRepository } from '../../infra/interface/ICalendarRepository';
 import { CreateDefaultCalendarUseCase } from './CreateDefaultCalendarUseCase';
+import { UsersCalendar } from '../../domain/UsersCalendar';
+import { UserRole } from '../../entity/UsersCalendar.entity';
+import { ICalendarRepository } from '../../infra/interface/ICalendarRepository';
 import { IUsersCalendarRepository } from '../../infra/interface/IUsersCalendarRepository';
 
-describe('CreateDefaultCalendarUseCaseSpec', () => {
+describe('CreateDefaultCalendarUseCase', () => {
   const USER_ID = 'user_id';
   const CALENDAR_NAME = '유저이름';
+  const CALENDAR_ID = 'calendar_id';
 
   let uut: CreateDefaultCalendarUseCase;
   let calendarRepository: MockProxy<ICalendarRepository>;
@@ -28,6 +31,18 @@ describe('CreateDefaultCalendarUseCaseSpec', () => {
     });
   }
 
+  function givenFindDefaultByUserIdReturnCalendar() {
+    usersCalendarRepository.findDefaultByUserId
+      .calledWith(USER_ID)
+      .mockResolvedValue(
+        UsersCalendar.createNew({
+          calendarId: CALENDAR_ID,
+          userId: USER_ID,
+          userRole: UserRole.CREATOR,
+        }).value,
+      );
+  }
+
   it('생성되었는지', () => {
     expect(uut).toBeDefined();
   });
@@ -43,5 +58,16 @@ describe('CreateDefaultCalendarUseCaseSpec', () => {
     expect(createDefaultCalendarUseCaseResponse.calendar.name).toEqual(
       CALENDAR_NAME,
     );
+  });
+
+  it('캘린더 Create', async () => {
+    givenFindDefaultByUserIdReturnCalendar();
+    const createDefaultCalendarUseCaseResponse = await createCalendar(
+      USER_ID,
+      CALENDAR_NAME,
+    );
+
+    expect(createDefaultCalendarUseCaseResponse).toBeDefined();
+    expect(createDefaultCalendarUseCaseResponse.ok).toBe(false);
   });
 });

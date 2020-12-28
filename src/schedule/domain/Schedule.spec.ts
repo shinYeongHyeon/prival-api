@@ -64,6 +64,7 @@ describe('Schedule', () => {
     expect(scheduleOrError.value.title.value).toEqual(TITLE);
     expect(scheduleOrError.value.description).toEqual(scheduleDescription);
     expect(scheduleOrError.value.description.value).toEqual(DESCRIPTION);
+    expect(scheduleOrError.value.calendarId).toEqual(CALENDAR_ID);
     expect(
       `${start.getFullYear()}-${start.getMonth()}-${start.getDate()}`,
     ).toEqual(`${START.getFullYear()}-${START.getMonth()}-${START.getDate()}`);

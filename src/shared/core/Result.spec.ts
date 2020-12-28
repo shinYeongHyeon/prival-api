@@ -56,7 +56,11 @@ describe('Result', () => {
 
   it('value get 메소드는 isSuccess 가 True 인 경우에만 가능한지', () => {
     try {
-      result = new Result(false, new Error(ERROR_MESSAGE), new Error(ERROR_MESSAGE));
+      result = new Result(
+        false,
+        new Error(ERROR_MESSAGE),
+        new Error(ERROR_MESSAGE),
+      );
       result.value;
 
       expect(true).toBeFalsy();
